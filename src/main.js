@@ -11,6 +11,7 @@ const ui = {
   hud: $('hud'),
   hearts: [...$('hearts').children],
   timer: $('timer'),
+  timerBonus: $('timerBonus'),
   mute: $('muteBtn'),
   progressFill: $('progressFill'),
   clearedCount: $('clearedCount'),
@@ -33,6 +34,7 @@ const ui = {
   resultTitle: $('resultTitle'),
   resultTime: $('resultTime'),
   resultBadge: $('resultBadge'),
+  resultBonus: $('resultBonus'),
   resultCleared: $('resultCleared'),
   resultHits: $('resultHits'),
   resultBest: $('resultBest'),
@@ -69,6 +71,7 @@ const game = {
   finalTime: 0,
   cleared: 0,
   hits: 0,
+  bonusCount: 0,
   spawned: 0,
   spawning: false,
   nextZ: 0,
@@ -138,9 +141,10 @@ function refreshMeter() {
 }
 
 let toastTimer = 0;
-function toast(text, small = false) {
+function toast(text, small = false, bonus = false) {
   ui.toast.textContent = text;
   ui.toast.classList.toggle('small', small);
+  ui.toast.classList.toggle('bonus', bonus);
   ui.toast.classList.remove('show');
   void ui.toast.offsetWidth;
   ui.toast.classList.add('show');
@@ -180,6 +184,7 @@ function resetRun() {
     finalTime: 0,
     cleared: 0,
     hits: 0,
+    bonusCount: 0,
     spawned: 0,
     spawning: true,
     nextZ: CONFIG.firstObstacleZ,
@@ -259,10 +264,49 @@ function jump() {
 
 const PRAISE = ['ナイス！', 'いいね！', 'すごい！', 'ぴょーん！', 'その調子！'];
 
+// ジャンプの頂点で、いちばん近いバーの真上にいたら「ナイス、わん！」の候補にする
+function checkApex() {
+  let nearest = null;
+  for (const o of game.obstacles) {
+    if (o.state !== 'pending') continue;
+    if (!nearest || Math.abs(game.z - o.z) < Math.abs(game.z - nearest.z)) nearest = o;
+  }
+  if (nearest && Math.abs(game.z - nearest.z) <= CONFIG.bonusWindow && game.level === nearest.rows) {
+    nearest.apexBonus = true;
+  }
+}
+
+function showTimerBonus() {
+  ui.timerBonus.textContent = `−${CONFIG.bonusTime}秒`;
+  ui.timerBonus.classList.remove('show');
+  ui.timer.classList.remove('flash');
+  void ui.timerBonus.offsetWidth;
+  ui.timerBonus.classList.add('show');
+  ui.timer.classList.add('flash');
+}
+
 function onClear(o) {
   o.clear();
   game.cleared++;
-  sfx.clear();
+  const bonus = !!o.apexBonus;
+  if (bonus) {
+    game.time = Math.max(0, game.time - CONFIG.bonusTime);
+    game.bonusCount++;
+    sfx.bonus();
+    showTimerBonus();
+    particles.emit({
+      pos: { x: 0, y: game.y + 1.2, z: game.z },
+      count: 26,
+      colors: ['#ff6f96', '#ffb3c9', '#ffffff'],
+      speed: 6,
+      up: 4,
+      life: 0.9,
+      size: 0.24,
+      spread: 1.5,
+    });
+  } else {
+    sfx.clear();
+  }
   particles.emit({
     pos: { x: 0, y: o.top + 0.3, z: o.z },
     count: 18,
@@ -275,8 +319,11 @@ function onClear(o) {
   });
   refreshHud();
   const remaining = CONFIG.goalCount - game.cleared;
-  if (remaining <= 0) {
-    startGoal(o);
+  if (remaining <= 0) startGoal(o);
+  if (bonus) {
+    toast('ナイス、わん！', false, true);
+  } else if (remaining <= 0) {
+    // ゴールの案内は startGoal で出している
   } else if (remaining <= 3) {
     toast(`あと${remaining}こ！`);
   } else {
@@ -366,6 +413,8 @@ function showResult(win) {
   ui.resultTitle.textContent = win ? 'ゴール！' : 'ゲームオーバー';
   ui.resultTime.textContent = formatTime(game.finalTime);
   ui.resultBadge.hidden = !(win && game.newBest);
+  ui.resultBonus.hidden = game.bonusCount === 0;
+  ui.resultBonus.textContent = `ナイス、わん！ ×${game.bonusCount}（−${(game.bonusCount * CONFIG.bonusTime).toFixed(1)}秒）`;
   ui.resultCleared.textContent = `${game.cleared}こ`;
   ui.resultHits.textContent = `${game.hits}回`;
   ui.resultBest.textContent = best != null ? formatTime(best) : '--';
@@ -402,8 +451,10 @@ function updateRun(dt) {
   game.z -= game.speed * dt;
 
   if (game.airborne) {
+    const rising = game.vy > 0;
     game.vy -= g * dt;
     game.y += game.vy * dt;
+    if (rising && game.vy <= 0 && game.state === 'playing') checkApex();
     if (game.y <= 0) {
       game.y = 0;
       game.vy = 0;

@@ -73,6 +73,10 @@ export const sfx = {
     tone({ freq: 220, to: 70, dur: 0.3, type: 'square', vol: 0.18 });
     tone({ freq: 160, to: 60, dur: 0.25, type: 'sawtooth', vol: 0.12, delay: 0.03 });
   },
+  bonus() {
+    tone({ freq: 760, to: 420, dur: 0.13, type: 'square', vol: 0.1 });
+    notes([0, 1047, 1319, 1568, 2093], { step: 0.06, dur: 0.12, vol: 0.2 });
+  },
   count() {
     tone({ freq: 660, dur: 0.12, type: 'triangle', vol: 0.25 });
   },
