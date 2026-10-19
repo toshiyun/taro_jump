@@ -30,8 +30,8 @@ const ui = {
   resumeBtn: $('resumeBtn'),
   bestTitle: $('bestTitle'),
   ruleCounts: $('ruleCounts'),
-  rulePenalty: $('rulePenalty'),
   ruleBonus: $('ruleBonus'),
+  rulePenalty: $('rulePenalty'),
   resultEyebrow: $('resultEyebrow'),
   resultTitle: $('resultTitle'),
   resultTime: $('resultTime'),
@@ -121,8 +121,8 @@ function formatTime(t) {
 // ---------- 画面表示 ----------
 ui.goalCount.textContent = `/${CONFIG.goalCount}`;
 ui.ruleCounts.textContent = `${CONFIG.goalCount}こ飛びこえたらゴール。${CONFIG.maxHits}回ぶつかるとおしまい。`;
-ui.rulePenalty.textContent = `ぶつかるたびに +${CONFIG.hitPenalty}秒`;
 ui.ruleBonus.textContent = `バーの真上でいちばん高くなると −${CONFIG.bonusTime}秒！`;
+ui.rulePenalty.textContent = `ぶつかるたびに +${CONFIG.hitPenalty}秒`;
 
 function refreshBest() {
   const best = loadBest();
