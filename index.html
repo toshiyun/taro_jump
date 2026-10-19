@@ -35,7 +35,10 @@
         <svg class="heart" viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21s-9.5-5.6-9.5-12A5.3 5.3 0 0 1 12 5.6 5.3 5.3 0 0 1 21.5 9c0 6.4-9.5 12-9.5 12z"/></svg>
         <svg class="heart" viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21s-9.5-5.6-9.5-12A5.3 5.3 0 0 1 12 5.6 5.3 5.3 0 0 1 21.5 9c0 6.4-9.5 12-9.5 12z"/></svg>
       </div>
-      <div id="timer" class="timer" aria-label="タイム">0:00.00</div>
+      <div class="timer-wrap">
+        <div id="timer" class="timer" aria-label="タイム">0:00.00</div>
+        <div id="timerBonus" class="timer-bonus" aria-hidden="true"></div>
+      </div>
       <button id="muteBtn" class="icon-btn" type="button" aria-label="音を消す">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path class="speaker" d="M4 9h4l5-4v14l-5-4H4z"/><path class="waves" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/><path class="cross" d="M16 9l5 6M21 9l-5 6"/></svg>
       </button>
@@ -67,7 +70,7 @@
         <li><span class="mini-bars" aria-hidden="true"><i></i><i></i></span><span><b>2回</b>タップ</span></li>
         <li><span class="mini-bars" aria-hidden="true"><i></i><i></i><i></i></span><span><b>3回</b>タップ</span></li>
       </ul>
-      <p class="rule">バーの本数だけタップしてジャンプ！<br><span id="ruleCounts">20こ飛びこえたらゴール。3回ぶつかるとおしまい。</span></p>
+      <p class="rule">バーの本数だけタップしてジャンプ！<br><span id="ruleCounts">20こ飛びこえたらゴール。3回ぶつかるとおしまい。</span><br><span class="rule-bonus">バーの真上でいちばん高くなると −0.5秒！</span></p>
       <button id="startBtn" class="big-btn" type="button">スタート</button>
       <p id="bestTitle" class="best"></p>
     </div>
@@ -79,6 +82,7 @@
       <h2 id="resultTitle" class="result-title">ゴール！</h2>
       <p id="resultTime" class="result-time">0:00.00</p>
       <p id="resultBadge" class="result-badge" hidden>ベスト更新！</p>
+      <p id="resultBonus" class="result-bonus" hidden></p>
       <dl class="stats">
         <div><dt>とびこえた</dt><dd id="resultCleared">0</dd></div>
         <div><dt>ぶつかった</dt><dd id="resultHits">0</dd></div>
