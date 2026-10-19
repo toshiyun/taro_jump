@@ -30,11 +30,14 @@ const ui = {
   resumeBtn: $('resumeBtn'),
   bestTitle: $('bestTitle'),
   ruleCounts: $('ruleCounts'),
+  ruleBonus: $('ruleBonus'),
+  rulePenalty: $('rulePenalty'),
   resultEyebrow: $('resultEyebrow'),
   resultTitle: $('resultTitle'),
   resultTime: $('resultTime'),
   resultBadge: $('resultBadge'),
   resultBonus: $('resultBonus'),
+  resultPenalty: $('resultPenalty'),
   resultCleared: $('resultCleared'),
   resultHits: $('resultHits'),
   resultBest: $('resultBest'),
@@ -118,6 +121,8 @@ function formatTime(t) {
 // ---------- 画面表示 ----------
 ui.goalCount.textContent = `/${CONFIG.goalCount}`;
 ui.ruleCounts.textContent = `${CONFIG.goalCount}こ飛びこえたらゴール。${CONFIG.maxHits}回ぶつかるとおしまい。`;
+ui.ruleBonus.textContent = `バーの真上でいちばん高くなると −${CONFIG.bonusTime}秒！`;
+ui.rulePenalty.textContent = `ぶつかるたびに +${CONFIG.hitPenalty}秒`;
 
 function refreshBest() {
   const best = loadBest();
@@ -276,8 +281,11 @@ function checkApex() {
   }
 }
 
-function showTimerBonus() {
-  ui.timerBonus.textContent = `−${CONFIG.bonusTime}秒`;
+// タイムの下に「−0.5秒」（ボーナス）や「+0.7秒」（ペナルティ）を出す
+function showTimerChange(text, penalty) {
+  ui.timerBonus.textContent = text;
+  ui.timerBonus.classList.toggle('penalty', penalty);
+  ui.timer.classList.toggle('penalty', penalty);
   ui.timerBonus.classList.remove('show');
   ui.timer.classList.remove('flash');
   void ui.timerBonus.offsetWidth;
@@ -293,7 +301,7 @@ function onClear(o) {
     game.time = Math.max(0, game.time - CONFIG.bonusTime);
     game.bonusCount++;
     sfx.bonus();
-    showTimerBonus();
+    showTimerChange(`−${CONFIG.bonusTime}秒`, false);
     particles.emit({
       pos: { x: 0, y: game.y + 1.2, z: game.z },
       count: 26,
@@ -333,6 +341,8 @@ function onClear(o) {
 
 function onHit(o) {
   game.hits++;
+  game.time += CONFIG.hitPenalty;
+  showTimerChange(`+${CONFIG.hitPenalty}秒`, true);
   o.knock();
   dog.hit();
   sfx.hit();
@@ -415,6 +425,8 @@ function showResult(win) {
   ui.resultBadge.hidden = !(win && game.newBest);
   ui.resultBonus.hidden = game.bonusCount === 0;
   ui.resultBonus.textContent = `ナイス、わん！ ×${game.bonusCount}（−${(game.bonusCount * CONFIG.bonusTime).toFixed(1)}秒）`;
+  ui.resultPenalty.hidden = game.hits === 0;
+  ui.resultPenalty.textContent = `ぶつかった ×${game.hits}（+${(game.hits * CONFIG.hitPenalty).toFixed(1)}秒）`;
   ui.resultCleared.textContent = `${game.cleared}こ`;
   ui.resultHits.textContent = `${game.hits}回`;
   ui.resultBest.textContent = best != null ? formatTime(best) : '--';
