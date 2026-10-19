@@ -4,7 +4,8 @@ import { toon, canvasTexture } from './materials.js';
 // 黒柴のタロ助。前は -Z 方向。原点は足元の中心。
 const COLORS = {
   fur: 0x3a3236, // 黒い毛
-  tan: 0xd0803f, // 茶色のまろ眉・ほっぺ
+  tan: 0xd0803f, // 茶色のほっぺ
+  brow: 0xffffff, // 白いまろ眉
   cream: 0xfff3e4, // 白いマズル・胸・くつした
   dark: 0x150e10, // 目・鼻
   pink: 0xff9db5,
@@ -30,6 +31,7 @@ export class Dog {
     const cream = toon(COLORS.cream);
     const dark = toon(COLORS.dark);
     const tan = toon(COLORS.tan);
+    const brow = toon(COLORS.brow);
     const pink = toon(COLORS.pink);
     const white = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
@@ -59,8 +61,8 @@ export class Dog {
     this.head.add(ball(0.06, pink, 0, -0.26, -0.4, 1, 0.55, 1.2)); // 舌
     this.head.add(ball(0.06, pink, -0.29, -0.05, -0.27, 1, 0.7, 0.45)); // ほっぺの赤み
     this.head.add(ball(0.06, pink, 0.29, -0.05, -0.27, 1, 0.7, 0.45));
-    this.head.add(ball(0.05, tan, -0.15, 0.2, -0.37, 1.3, 0.8, 0.5)); // まろ眉
-    this.head.add(ball(0.05, tan, 0.15, 0.2, -0.37, 1.3, 0.8, 0.5));
+    this.head.add(ball(0.05, brow, -0.15, 0.2, -0.37, 1.3, 0.8, 0.5)); // まろ眉
+    this.head.add(ball(0.05, brow, 0.15, 0.2, -0.37, 1.3, 0.8, 0.5));
 
     this.eyes = new THREE.Group();
     this.head.add(this.eyes);
